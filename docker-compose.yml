@@ -1,44 +1,60 @@
 version: '3.8'
 
 services:
-    dev:
-        container_name: nest-mongo
-        image: nest-mongo
-        build:
-            context: .
-            target: development
-            dockerfile: ./Dockerfile
-        command: yarn start:debug
-        ports:
-            - 3000:3000
-            - 9229:9229
-        env_file:
-        - .env
-        networks:
-            - nesjs-network
-        volumes:
-            - .:/usr/src/app
-            - /usr/src/app/node_modules
-        restart: unless-stopped
-    prod:
-        container_name: nest-mongo
-        image: nest-mongo
-        build:
-            context: .
-            target: production
-            dockerfile: ./Dockerfile
-        command: yarn start:prod
-        ports:
-            - 3000:3000
-            - 9229:9229
-        env_file:
-        - .env
-        networks:
-            - nesjs-network
-        volumes:
-            - .:/usr/src/app
-            - /usr/src/app/node_modules
-        restart: unless-stopped
+  dev:
+    container_name: nest-mongo
+    image: nest-mongo
+    build:
+      context: .
+      target: development
+      dockerfile: ./Dockerfile
+    command: yarn start:debug
+    ports:
+      - 3000:3000
+      - 9229:9229
+    env_file:
+      - .env
+    networks:
+      - nesjs-network
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    restart: unless-stopped
+    depends_on:
+      - mongo
+  prod:
+    container_name: nest-mongo
+    image: nest-mongo
+    build:
+      context: .
+      target: production
+      dockerfile: ./Dockerfile
+    command: yarn start:prod
+    ports:
+      - 3000:3000
+      - 9229:9229
+    env_file:
+      - .env
+    networks:
+      - nesjs-network
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    restart: unless-stopped
+    depends_on:
+      - mongo
+  mongo:
+    container_name: mongo
+    image: mongo:4.2.16
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
+    ports:
+      - ${MONGO_PORT}:${MONGO_PORT}
+    networks: 
+      - nesjs-network
+    restart: unless-stopped
 
 networks:
-    nesjs-network:
+  nesjs-network:
